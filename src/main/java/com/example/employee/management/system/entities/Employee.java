@@ -1,39 +1,52 @@
 package com.example.employee.management.system.entities;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "employee")
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Employee {
 
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @UuidGenerator
     private UUID id;
-    @NotNull(message = "first name is requierd")
-    @Size(min = 2, max = 50)
+
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
-    @NotNull(message = "last name is requierd")
-    @Size(min = 2, max = 50)
+
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
-    @Email
+
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
-    @Pattern(
-            regexp = "^(\\+?20)?(10|11|12|15)[0-9]{8}$",
-            message = "Invalid phone number"
-    )
+
+    @Column(name = "phone_number", nullable = false, length = 25)
     private String phoneNumber;
 
-    private String hireDate;
-    @NotNull(message = "last name is requierd")
-    @Size(min = 2, max = 50)
+    @Column(name = "hire_date", nullable = false)
+    private LocalDate hireDate;
+
+    @Column(name = "position", nullable = false)
     private String position;
-    private UUID departmentId;
+
+    @Column(name = "department_id", nullable = false)
+    private UUID departmentId = UUID.randomUUID();
 
 }

@@ -22,15 +22,12 @@ public class GlobalExceptionResponse {
     @ExceptionHandler(CustomResponseException.class)
     public ResponseEntity<GlobalResponse<?>> handleCustomResException(CustomResponseException ex) {
         var errors = List.of(new GlobalResponse.ErrorItem(ex.getMessage()));
-        return new ResponseEntity<>(new GlobalResponse<>(errors), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new GlobalResponse<>(errors), HttpStatus.valueOf(ex.getCode()));
     }
-
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<GlobalResponse<?>> handleCustomResException(MethodArgumentNotValidException ex) {
-        List<GlobalResponse.ErrorItem> errors = List.of(new GlobalResponse.ErrorItem(ex.getMessage()));
-        return new ResponseEntity<>(new GlobalResponse<>(errors), HttpStatus.NOT_FOUND);
+        var errors = ex.getBindingResult().getFieldErrors().stream().map(err -> new GlobalResponse.ErrorItem(err.getField() + " " + err.getDefaultMessage())).toList();
+        return new ResponseEntity<>( new GlobalResponse<>(errors), HttpStatus.BAD_REQUEST);
     }
-    
 }
