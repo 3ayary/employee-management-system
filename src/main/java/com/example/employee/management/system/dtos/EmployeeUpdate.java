@@ -1,5 +1,7 @@
 package com.example.employee.management.system.dtos;
 
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -23,7 +25,10 @@ public record EmployeeUpdate(
 
         @NotNull(message = "Position is requierd")
         @Size(min = 2, max = 50)
-        String position
+        String position,
+
+        @NotNull(message = "departmentId is requierd")
+        UUID departmentId
 ) {
     
 }

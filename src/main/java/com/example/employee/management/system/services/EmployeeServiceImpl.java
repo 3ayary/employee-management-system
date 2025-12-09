@@ -8,17 +8,21 @@ import org.springframework.stereotype.Service;
 import com.example.employee.management.system.abstracts.EmployeeService;
 import com.example.employee.management.system.dtos.EmployeeCreate;
 import com.example.employee.management.system.dtos.EmployeeUpdate;
+import com.example.employee.management.system.entities.Department;
 import com.example.employee.management.system.entities.Employee;
+import com.example.employee.management.system.repositories.DepartmentRepo;
 import com.example.employee.management.system.repositories.EmployeeRepo;
 import com.example.employee.management.system.shared.CustomResponseException;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final EmployeeRepo employeeRepo;
+    private EmployeeRepo employeeRepo;
+    private DepartmentRepo departmentRepo;
 
-    public EmployeeServiceImpl(EmployeeRepo employeeRepo) {
+    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
         this.employeeRepo = employeeRepo;
+        this.departmentRepo = departmentRepo;
     }
 
     @Override
@@ -38,9 +42,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee creatEmployee(EmployeeCreate employeeCreate) {
 
-        Employee employee = new Employee();
+        Department department = departmentRepo.findById(employeeCreate.departmentId()).orElseThrow(() -> CustomResponseException.ResourceNotFound("department with id " + employeeCreate.departmentId() + " not found"));
 
-        employee.setDepartmentId(UUID.randomUUID());
+        Employee employee = new Employee();
 
         employee.setFirstName(employeeCreate.firstName());
 
@@ -53,6 +57,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPhoneNumber(employeeCreate.phoneNumber());
 
         employee.setEmail(employeeCreate.email());
+
+        employee.setDepartment(department);
 
         employeeRepo.save(employee);
 
@@ -69,16 +75,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee updateOne(UUID employeeId, EmployeeUpdate employeeCreate) {
+    public Employee updateOne(UUID employeeId, EmployeeUpdate employeeUpdate) {
 
         Employee existingEmployee = employeeRepo.findById(employeeId)
                 .orElseThrow(() -> CustomResponseException.ResourceNotFound(("employee with id " + employeeId + " not found")));
 
-        existingEmployee.setFirstName(employeeCreate.firstName());
-        existingEmployee.setLastName(employeeCreate.lastName());
-        existingEmployee.setPhoneNumber(employeeCreate.phoneNumber());
-        existingEmployee.setPosition(employeeCreate.position());
+        Department department = departmentRepo.findById(employeeUpdate.departmentId()).orElseThrow(() -> CustomResponseException.ResourceNotFound("department with id " + employeeUpdate.departmentId() + " not found"));
 
+        existingEmployee.setFirstName(employeeUpdate.firstName());
+        existingEmployee.setLastName(employeeUpdate.lastName());
+        existingEmployee.setPhoneNumber(employeeUpdate.phoneNumber());
+        existingEmployee.setPosition(employeeUpdate.position());
+        existingEmployee.setDepartment(department);
         employeeRepo.save(existingEmployee);
 
         return existingEmployee;

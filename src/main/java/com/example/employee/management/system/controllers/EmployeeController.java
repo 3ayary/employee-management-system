@@ -15,21 +15,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.employee.management.system.abstracts.EmployeeService;
+import com.example.employee.management.system.abstracts.LeaveRequestService;
 import com.example.employee.management.system.dtos.EmployeeCreate;
 import com.example.employee.management.system.dtos.EmployeeUpdate;
+import com.example.employee.management.system.dtos.LeaveRequestCreate;
 import com.example.employee.management.system.entities.Employee;
+import com.example.employee.management.system.entities.LeaveRequest;
 import com.example.employee.management.system.shared.GlobalResponse;
 
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController {
 
-    private final EmployeeService employeeService;
+    private EmployeeService employeeService;
+    private LeaveRequestService leaveRequestService;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, LeaveRequestService leaveRequestService) {
         this.employeeService = employeeService;
+        this.leaveRequestService = leaveRequestService;
     }
 
     @GetMapping
@@ -63,5 +69,17 @@ public class EmployeeController {
 
         return new ResponseEntity<>(employeeService.updateOne(employeeId, employee), HttpStatus.OK);
     }
+
+    @PostMapping("/{employeeId}/leave-request")
+    public ResponseEntity<GlobalResponse<LeaveRequest>> leaveRequest(@PathVariable UUID employeeId, @RequestBody @Valid LeaveRequestCreate leaveRequest) {
+
+        return new ResponseEntity<>(new GlobalResponse<>(leaveRequestService.createOne(leaveRequest, employeeId)), HttpStatus.OK);
+    }
+
+    @GetMapping("/{employeeId}/leave-requests")
+    public ResponseEntity<GlobalResponse<List<LeaveRequest>>> getEmployeeLeaveRequests(@PathVariable UUID employeeId) {
+      return new ResponseEntity<>(new GlobalResponse<>(leaveRequestService.findAllByEmployeeId(employeeId)),HttpStatus.OK);
+    }
+    
 
 }
