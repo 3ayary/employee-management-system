@@ -10,14 +10,13 @@ import org.springframework.stereotype.Service;
 
 import com.example.employee.management.system.entities.UserAccount;
 import com.example.employee.management.system.repositories.UserAccountRepo;
-import com.example.employee.management.system.shared.CustomResponseException;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private UserAccountRepo userAccountRepo;
 
-    private UserDetailsServiceImpl(UserAccountRepo userAccountRepo) {
+    public UserDetailsServiceImpl(UserAccountRepo userAccountRepo) {
         this.userAccountRepo = userAccountRepo;
 
     }
@@ -26,7 +25,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserAccount> account = userAccountRepo.findOneByUserName(username);
         if (account.isEmpty()) {
-            throw CustomResponseException.BadCredintials();
+            throw new UsernameNotFoundException("User not found with username: " + username);
+
         }
         UserAccount user = account.get();
 

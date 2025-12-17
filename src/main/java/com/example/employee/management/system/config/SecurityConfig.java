@@ -17,10 +17,11 @@ import com.example.employee.management.system.services.UserDetailsServiceImpl;
 @EnableWebSecurity
 public class SecurityConfig {
 
-     UserDetailsServiceImpl userDetailsServiceImpl;
+    public UserDetailsServiceImpl userDetailsService;
 
-     SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl) {
-        this.userDetailsServiceImpl = userDetailsServiceImpl;
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -29,22 +30,26 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  @Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/employees", "/auth/signup").permitAll();
-                }).authenticationManager(authenticationManager((http)));
+    http
+        .cors(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/signup").permitAll()
+            .anyRequest().hasRole("ADMIN")
+        )
+        .httpBasic();
+        
 
-        return http.build();
-    }
+    return http.build();
+}
 
     @Bean
     AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         var authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder.userDetailsService(userDetailsServiceImpl).passwordEncoder(passwordEncoder());
+        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
         return authBuilder.build();
     }
 
