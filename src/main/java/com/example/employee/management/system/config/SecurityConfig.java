@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,6 +17,7 @@ import com.example.employee.management.system.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     public JwtAuthFilter jwtAuthFilter;
@@ -47,12 +49,12 @@ public class SecurityConfig {
                             "/auth/reset-password"
                     ).permitAll()
                             .requestMatchers(HttpMethod.GET, "/employees").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.GET, "/employees/{employeeId}").hasAnyRole("ADMIN", "USER")
+                            .requestMatchers(HttpMethod.GET, "/employees/{employeeId}").hasAnyRole("ADMIN", "EMPLOYEE")
                             .requestMatchers(HttpMethod.POST, "/employees").hasAnyRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, "/employees/{employeeId}").hasAnyRole("ADMIN")
-                            .requestMatchers(HttpMethod.PUT, "/employees/{employeeId}").hasAnyRole("ADMIN", "USER")
-                            .requestMatchers(HttpMethod.POST, "/employees/{employeeId}/leave-requests").hasAnyRole("ADMIN", "USER")
-                            .requestMatchers(HttpMethod.GET, "/employees/{employeeId}/leave-requests").hasAnyRole("ADMIN", "USER")
+                            .requestMatchers(HttpMethod.PUT, "/employees/{employeeId}").hasAnyRole("ADMIN", "EMPLOYEE")
+                            .requestMatchers(HttpMethod.POST, "/employees/{employeeId}/leave-requests").hasAnyRole("ADMIN", "EMPLOYEE")
+                            .requestMatchers(HttpMethod.GET, "/employees/{employeeId}/leave-requests").hasAnyRole("ADMIN", "EMPLOYEE")
                             .anyRequest()
                             .authenticated();
                 }).addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);

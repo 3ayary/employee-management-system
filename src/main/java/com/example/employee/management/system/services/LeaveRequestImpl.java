@@ -3,6 +3,7 @@ package com.example.employee.management.system.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.example.employee.management.system.abstracts.LeaveRequestService;
@@ -24,6 +25,7 @@ public class LeaveRequestImpl implements LeaveRequestService {
     }
 
     @Override
+    @PreAuthorize("@securityUtils.isOwner(#employeeId)")
     public LeaveRequest createOne(LeaveRequestCreate leaveRequestCreate, UUID employeeId) {
 
         LeaveRequest leaveRequest = new LeaveRequest();
@@ -39,6 +41,8 @@ public class LeaveRequestImpl implements LeaveRequestService {
     }
 
     @Override
+    @PreAuthorize("@securityUtils.isOwner(#employeeId)")
+
     public List<LeaveRequest> findAllByEmployeeId(UUID employeeId) {
 
         employeeRepo.findById(employeeId)

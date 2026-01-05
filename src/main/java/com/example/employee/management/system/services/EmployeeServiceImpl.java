@@ -3,6 +3,7 @@ package com.example.employee.management.system.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.example.employee.management.system.abstracts.EmployeeService;
@@ -13,19 +14,23 @@ import com.example.employee.management.system.entities.Employee;
 import com.example.employee.management.system.repositories.DepartmentRepo;
 import com.example.employee.management.system.repositories.EmployeeRepo;
 import com.example.employee.management.system.shared.CustomResponseException;
+import com.example.employee.management.system.utils.SecurityUtils;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeRepo employeeRepo;
     private DepartmentRepo departmentRepo;
+private SecurityUtils securityUtils ;
 
-    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo) {
+    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo,SecurityUtils securityUtils ) {
         this.employeeRepo = employeeRepo;
         this.departmentRepo = departmentRepo;
+        this.securityUtils = securityUtils ;  
     }
 
     @Override
+    @PreAuthorize("@securityUtils.isOwner(#employeeId)")
     public Employee findOne(UUID employeeId) {
 
         Employee employee = employeeRepo.findById(employeeId).orElseThrow(() -> CustomResponseException.ResourceNotFound("employee with id " + employeeId + " not found"));
@@ -75,6 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+     @PreAuthorize("@securityUtils.isOwner(#employeeId)")
     public Employee updateOne(UUID employeeId, EmployeeUpdate employeeUpdate) {
 
         Employee existingEmployee = employeeRepo.findById(employeeId)
