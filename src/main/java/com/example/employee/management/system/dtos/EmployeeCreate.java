@@ -3,6 +3,7 @@ package com.example.employee.management.system.dtos;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.example.employee.management.system.enums.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.validation.constraints.Email;
@@ -41,7 +42,9 @@ public record EmployeeCreate(
         String position,
 
         @NotNull(message = "departmentId is requierd")
-        UUID departmentId
+        UUID departmentId,
+
+        Role role 
 
         ) {
 

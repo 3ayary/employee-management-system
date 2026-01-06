@@ -7,12 +7,10 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.employee.management.system.enums.Role;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -42,12 +40,8 @@ public class UserAccount implements UserDetails {
 
     @Column(name = "password", nullable = false, length = 100)
     private String password;
-    @Enumerated(EnumType.STRING)
 
-    @Column(name = "role")
-    private Role role = Role.EMPLOYEE;
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 

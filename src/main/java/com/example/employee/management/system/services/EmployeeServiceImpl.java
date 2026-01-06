@@ -11,22 +11,25 @@ import com.example.employee.management.system.dtos.EmployeeCreate;
 import com.example.employee.management.system.dtos.EmployeeUpdate;
 import com.example.employee.management.system.entities.Department;
 import com.example.employee.management.system.entities.Employee;
+import com.example.employee.management.system.enums.Role;
 import com.example.employee.management.system.repositories.DepartmentRepo;
 import com.example.employee.management.system.repositories.EmployeeRepo;
 import com.example.employee.management.system.shared.CustomResponseException;
 import com.example.employee.management.system.utils.SecurityUtils;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeRepo employeeRepo;
     private DepartmentRepo departmentRepo;
-private SecurityUtils securityUtils ;
+    private EmailService emailService;
 
-    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo,SecurityUtils securityUtils ) {
+    public EmployeeServiceImpl(EmployeeRepo employeeRepo, DepartmentRepo departmentRepo, EmailService emailService) {
         this.employeeRepo = employeeRepo;
         this.departmentRepo = departmentRepo;
-        this.securityUtils = securityUtils ;  
+        this.emailService = emailService;
     }
 
     @Override
@@ -45,11 +48,17 @@ private SecurityUtils securityUtils ;
     }
 
     @Override
+    @Transactional
     public Employee creatEmployee(EmployeeCreate employeeCreate) {
 
         Department department = departmentRepo.findById(employeeCreate.departmentId()).orElseThrow(() -> CustomResponseException.ResourceNotFound("department with id " + employeeCreate.departmentId() + " not found"));
 
+        String token = UUID.randomUUID().toString();
+
         Employee employee = new Employee();
+
+        employee.setIsVerified(false);
+        employee.setAccountCreationToken(token);
 
         employee.setFirstName(employeeCreate.firstName());
 
@@ -63,9 +72,13 @@ private SecurityUtils securityUtils ;
 
         employee.setEmail(employeeCreate.email());
 
+        employee.setRole(employeeCreate.role() == null ? Role.EMPLOYEE : employeeCreate.role());
+
         employee.setDepartment(department);
 
         employeeRepo.save(employee);
+
+        emailService.sendAccountEmail(employee.getEmail(), token);
 
         return employee;
     }
@@ -80,7 +93,7 @@ private SecurityUtils securityUtils ;
     }
 
     @Override
-     @PreAuthorize("@securityUtils.isOwner(#employeeId)")
+    @PreAuthorize("@securityUtils.isOwner(#employeeId)")
     public Employee updateOne(UUID employeeId, EmployeeUpdate employeeUpdate) {
 
         Employee existingEmployee = employeeRepo.findById(employeeId)

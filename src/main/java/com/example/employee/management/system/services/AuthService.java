@@ -13,7 +13,6 @@ import com.example.employee.management.system.dtos.SigninRequest;
 import com.example.employee.management.system.dtos.SignupRequest;
 import com.example.employee.management.system.entities.Employee;
 import com.example.employee.management.system.entities.UserAccount;
-import com.example.employee.management.system.enums.Role;
 import com.example.employee.management.system.repositories.EmployeeRepo;
 import com.example.employee.management.system.repositories.UserAccountRepo;
 import com.example.employee.management.system.shared.CustomResponseException;
@@ -35,20 +34,25 @@ public class AuthService {
         this.jwtHelper = jwtHelper;
     }
 
-    public void signup(SignupRequest signupRequest) {
+    public void signup(SignupRequest signupRequest, String token) {
 
-        Employee employee = employeeRepo.findById(signupRequest.employeeId())
-                .orElseThrow(() -> CustomResponseException.ResourceNotFound("Employee with id: " + signupRequest.employeeId() + " is not found !"));
+        Employee employee = employeeRepo.findOneByAccountCreationToken(token)
+                .orElseThrow(() -> CustomResponseException.ResourceNotFound("Invaild token!"));
 
-        Role role = signupRequest.role() != null ? signupRequest.role() : Role.EMPLOYEE;
+        if (employee.getIsVerified()) {
+            throw CustomResponseException.BadRequest("Account already created!");
+        }
+
         UserAccount account = new UserAccount();
         account.setUserName(signupRequest.userName());
         account.setPassword(passwordEncoder.encode(signupRequest.password()));
-        account.setRole(role);
         account.setEmployee(employee);
 
         userAccountRepo.save(account);
 
+        employee.setIsVerified(true);
+        employee.setAccountCreationToken(null);
+        employeeRepo.save(employee);
     }
 
     public String signin(SigninRequest signinRequest) {

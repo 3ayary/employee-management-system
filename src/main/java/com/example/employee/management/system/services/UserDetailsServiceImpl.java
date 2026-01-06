@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.employee.management.system.entities.UserAccount;
+import com.example.employee.management.system.enums.Role;
 import com.example.employee.management.system.repositories.UserAccountRepo;
 
 @Service
@@ -29,12 +30,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         }
         UserAccount user = account.get();
-
+        Role role = user.getEmployee().getRole();
+        System.out.println(role);
         return User.builder()
-        .username(user.getUsername())
-        .password(user.getPassword())
-        .roles(user.getRole().name())
-        .build();
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .roles(role.name())
+                .build();
     }
 
 }
