@@ -31,7 +31,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         UserAccount user = account.get();
         Role role = user.getEmployee().getRole();
-        System.out.println(role);
         return User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())

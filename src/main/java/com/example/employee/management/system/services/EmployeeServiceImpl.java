@@ -3,6 +3,10 @@ package com.example.employee.management.system.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +20,7 @@ import com.example.employee.management.system.repositories.DepartmentRepo;
 import com.example.employee.management.system.repositories.EmployeeRepo;
 import com.example.employee.management.system.shared.CustomResponseException;
 import com.example.employee.management.system.utils.SecurityUtils;
+
 
 import jakarta.transaction.Transactional;
 
@@ -43,10 +48,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<Employee> findAll() {
-        return employeeRepo.findAll();
+    public Page<Employee> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        return employeeRepo.findAll(pageable);
     }
 
+
+    
     @Override
     @Transactional
     public Employee creatEmployee(EmployeeCreate employeeCreate) {

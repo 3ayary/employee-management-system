@@ -1,7 +1,8 @@
 package com.example.employee.management.system.abstracts;
 
-import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
 
 import com.example.employee.management.system.dtos.EmployeeCreate;
 import com.example.employee.management.system.dtos.EmployeeUpdate;
@@ -11,7 +12,7 @@ public interface EmployeeService {
 
     Employee findOne(UUID employeeId);
 
-    List<Employee> findAll();
+    Page<Employee> findAll(int page,int size);
 
     Employee creatEmployee(EmployeeCreate employee);
 
