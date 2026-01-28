@@ -40,14 +40,14 @@ public class SecurityConfig {
 
         http
                 .cors(cors -> cors.disable())
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())   
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(
                             "/auth/signup",
                             "/auth/signin",
                             "/auth/forgot-password/{username}",
                             "/auth/reset-password"
-                    ).permitAll()
+                    ).permitAll() 
                             .requestMatchers(HttpMethod.GET, "/employees").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.GET, "/employees/{employeeId}").hasAnyRole("ADMIN", "EMPLOYEE")
                             .requestMatchers(HttpMethod.POST, "/employees").hasAnyRole("ADMIN")
@@ -57,7 +57,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/employees/{employeeId}/leave-requests").hasAnyRole("ADMIN", "EMPLOYEE")
                             .anyRequest()
                             .authenticated();
-                }).addFilterBefore(jwtAuthFilter,UsernamePasswordAuthenticationFilter.class);
+                }).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

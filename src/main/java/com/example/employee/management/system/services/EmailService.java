@@ -20,13 +20,26 @@ public class EmailService {
     private String from;
 
     public void sendAccountEmail(String to, String token) {
-        String link = ORIGIN + "?token=" + token;
+        String link = ORIGIN + "/auth/signup?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setFrom(from);
         message.setTo(to);
         message.setSubject("Create your account!");
         message.setText("Hi, Please Create your account using this link below  \n " + link);
+        mailSender.send(message);
+
+    }
+
+    public void sendPasswordResetEmail(String to, String token) {
+
+        String link = ORIGIN + "/auth/reset?token=" + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom(from);
+        message.setTo(to);
+        message.setSubject("Reset your Password!");
+        message.setText("Hi, Please click this link below to reset your password: \n " + link);
         mailSender.send(message);
 
     }

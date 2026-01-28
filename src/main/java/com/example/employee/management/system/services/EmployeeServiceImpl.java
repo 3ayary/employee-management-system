@@ -21,7 +21,6 @@ import com.example.employee.management.system.repositories.EmployeeRepo;
 import com.example.employee.management.system.shared.CustomResponseException;
 import com.example.employee.management.system.utils.SecurityUtils;
 
-
 import jakarta.transaction.Transactional;
 
 @Service
@@ -49,46 +48,49 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<Employee> findAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
         return employeeRepo.findAll(pageable);
     }
 
-
-    
     @Override
     @Transactional
     public Employee creatEmployee(EmployeeCreate employeeCreate) {
 
-        Department department = departmentRepo.findById(employeeCreate.departmentId()).orElseThrow(() -> CustomResponseException.ResourceNotFound("department with id " + employeeCreate.departmentId() + " not found"));
+        try {
+            Department department = departmentRepo.findById(employeeCreate.departmentId()).orElseThrow(() -> CustomResponseException.ResourceNotFound("department with id " + employeeCreate.departmentId() + " not found"));
 
-        String token = UUID.randomUUID().toString();
+            String token = UUID.randomUUID().toString();
 
-        Employee employee = new Employee();
+            Employee employee = new Employee();
 
-        employee.setIsVerified(false);
-        employee.setAccountCreationToken(token);
+            employee.setIsVerified(false);
+            employee.setAccountCreationToken(token);
 
-        employee.setFirstName(employeeCreate.firstName());
+            employee.setFirstName(employeeCreate.firstName());
 
-        employee.setLastName(employeeCreate.lastName());
+            employee.setLastName(employeeCreate.lastName());
 
-        employee.setPosition(employeeCreate.position());
+            employee.setPosition(employeeCreate.position());
 
-        employee.setHireDate(employeeCreate.hireDate());
+            employee.setHireDate(employeeCreate.hireDate());
 
-        employee.setPhoneNumber(employeeCreate.phoneNumber());
+            employee.setPhoneNumber(employeeCreate.phoneNumber());
 
-        employee.setEmail(employeeCreate.email());
+            employee.setEmail(employeeCreate.email());
 
-        employee.setRole(employeeCreate.role() == null ? Role.EMPLOYEE : employeeCreate.role());
+            employee.setRole(employeeCreate.role() == null ? Role.EMPLOYEE : employeeCreate.role());
 
-        employee.setDepartment(department);
+            employee.setDepartment(department);
 
-        employeeRepo.save(employee);
+            employeeRepo.save(employee);
 
-        emailService.sendAccountEmail(employee.getEmail(), token);
+            emailService.sendAccountEmail(employee.getEmail(), token);
 
-        return employee;
+            return employee;
+        } catch (Exception e) { 
+            throw CustomResponseException.BadRequest("Create new account failed!");
+        }
+
     }
 
     @Override
